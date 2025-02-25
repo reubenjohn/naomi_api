@@ -28,7 +28,17 @@ async def receive_webhook(event: WebhookEventRequest):
     return {"status": "OK"}
 
 
-if __name__ == "__main__":
+def main():
     import uvicorn
+    import argparse
 
-    uvicorn.run("api:app", host="0.0.0.0", port=8090)
+    parser = argparse.ArgumentParser(description="Run the FastAPI server.")
+    parser.add_argument("--host", type=str, default="0.0.0.0", help="Host to run the server on")
+    parser.add_argument("--port", type=int, default=8090, help="Port to run the server on")
+    args = parser.parse_args()
+
+    uvicorn.run("naomi_api.api:app", host=args.host, port=args.port)
+
+
+if __name__ == "__main__":
+    main()

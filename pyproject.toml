@@ -28,5 +28,8 @@ pytest-cov = "^6.0.0"
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.poetry.scripts]
+api_server = "naomi_api.api:main"
+
 [tool.black]
 line-length = 100
