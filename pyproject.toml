@@ -1,13 +1,16 @@
 [tool.poetry]
-name = "python_template"
+name = "naomi_api"
 version = "0.1.0"
 description = ""
 authors = ["rochacbruno"]
 readme = "README.md"
-packages = [{include = "python_template"}]
+packages = [{include = "naomi_api"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
+naomi_core = { git = "https://github.com/reubenjohn/naomi_core.git", rev = "d651d8dc42803d80ae325a8f088522a4e4797f3c" }
+fastapi = "^0.115.8"
+uvicorn = "^0.34.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -24,9 +27,6 @@ pytest-cov = "^6.0.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.scripts]
-python_template = 'python_template.__main__:main'
 
 [tool.black]
 line-length = 100
