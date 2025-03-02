@@ -1,9 +1,19 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+import os
+from fastapi import FastAPI, HTTPException, requests
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Dict, Any
+from dotenv import load_dotenv
 
 from naomi_core.db import WebhookEvent, initialize_db, session_scope
+from firebase_admin import initialize_app, credentials, messaging  # type: ignore[import]
+
+cred = credentials.Certificate(os.environ["SERVICE_ACCOUNT_KEY_PATH"])
+initialize_app(cred)
+
+FIREBASE_SERVER_KEY = "YOUR_FIREBASE_SERVER_KEY"
+subscribers = []  # Stores FCM tokens
 
 
 @asynccontextmanager
@@ -13,6 +23,15 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class WebhookEventRequest(BaseModel):
@@ -28,7 +47,28 @@ async def receive_webhook(event: WebhookEventRequest):
     return {"status": "OK"}
 
 
+@app.post("/subscribe")
+async def subscribe(data: dict):
+    token = data.get("token")
+    if token not in subscribers:
+        subscribers.append(token)
+    return {"message": "Subscribed", "token": token}
+
+
+@app.post("/send_notification")
+async def send_notification():
+    message = messaging.MulticastMessage(
+        data={"score": "850", "time": "2:45"},
+        tokens=subscribers,
+    )
+    response = messaging.send_multicast(message)
+
+    return {"response": "{0} messages were sent successfully".format(response.success_count)}
+
+
 def main():
+    load_dotenv()
+
     import uvicorn
     import argparse
 

@@ -11,6 +11,7 @@ python = "^3.10"
 naomi_core = { git = "https://github.com/reubenjohn/naomi_core.git", rev = "main" }
 fastapi = "^0.115.8"
 uvicorn = "^0.34.0"
+firebase-admin = "^6.6.0"
 
 
 [tool.poetry.group.dev.dependencies]
