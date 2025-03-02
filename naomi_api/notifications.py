@@ -1,7 +1,7 @@
 from typing import List
 
 from fastapi import APIRouter
-from firebase_admin import messaging
+from firebase_admin import messaging  # type: ignore[import]
 
 # Router for notification-related endpoints
 router = APIRouter()

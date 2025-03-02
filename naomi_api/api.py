@@ -1,14 +1,17 @@
 import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Any, Dict
 
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 from firebase_admin import credentials, initialize_app  # type: ignore[import]
 from naomi_core.db import WebhookEvent, initialize_db, session_scope
 from pydantic import BaseModel
 
+from naomi_api.inject_secrets import PlaceholderInjector
 from naomi_api.notifications import router as notifications_router
 
 cred = None
@@ -66,6 +69,25 @@ async def receive_webhook(event: WebhookEventRequest):
 
 # Include the notifications router
 app.include_router(notifications_router, prefix="/notifications")
+
+
+# Create a placeholder injector instance
+injector = PlaceholderInjector()
+
+# Add any custom mappings if environment variable names differ from placeholders
+# Example: injector.add_custom_mapping("FIREBASE_API_KEY", "FIREBASE_WEB_API_KEY")
+
+
+@app.get("/", response_class=HTMLResponse)
+async def serve_streamlit_wrapper():
+    content = injector.inject(Path("resources/streamlit_wrapper.html").read_text())
+    return HTMLResponse(content=content)
+
+
+@app.get("/firebase-messaging-sw.js")
+async def serve_firebase_messaging_sw():
+    content = injector.inject(Path("resources/firebase-messaging-sw.js").read_text())
+    return Response(content=content, media_type="application/javascript")
 
 
 def main():

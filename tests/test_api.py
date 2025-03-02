@@ -1,3 +1,4 @@
+import os
 from unittest.mock import patch
 import pytest
 from fastapi.testclient import TestClient
@@ -29,3 +30,29 @@ def test_receive_webhook(webhook_event_data):
         response = client.post("/webhook", json=webhook_event_data)
         assert response.status_code == 200
         assert response.json() == {"status": "OK"}
+
+
+def test_serve_streamlit_wrapper():
+    """Test the root endpoint that serves the streamlit wrapper HTML."""
+    with patch(
+        "pathlib.Path.read_text", return_value="<html>PLACEHOLDER_TEST content</html>"
+    ), patch.dict(os.environ, {"TEST": "injected"}):
+
+        response = client.get("/")
+
+        assert response.status_code == 200
+        assert response.headers["content-type"] == "text/html; charset=utf-8"
+        assert "<html>injected content</html>" in response.text
+
+
+def test_serve_firebase_messaging_sw():
+    """Test the firebase-messaging-sw.js endpoint."""
+    with patch(
+        "pathlib.Path.read_text", return_value="console.log('PLACEHOLDER_APP_ID');"
+    ), patch.dict(os.environ, {"APP_ID": "test-app-123"}):
+
+        response = client.get("/firebase-messaging-sw.js")
+
+        assert response.status_code == 200
+        assert response.headers["content-type"] == "application/javascript"
+        assert "console.log('test-app-123');" in response.text
