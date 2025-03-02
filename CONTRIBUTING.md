@@ -1,164 +1,134 @@
-# How to develop on naomi_api
+# Contributing to NAOMI API
 
-**You need PYTHON3!**
+This guide explains how to contribute to the NAOMI API project.
 
-This instructions are for linux base systems. (Linux, MacOS, BSD, etc.)
+## Setting up your development environment
 
-## Setting up your own fork of this repo.
+### Prerequisites
 
-- On github interface click on `Fork` button.
-- Clone your fork of this repo. `git clone git@github.com:YOUR_GIT_USERNAME/naomi_api.git`
-- Enter the directory `cd naomi_api`
-- Add upstream repo `git remote add upstream https://github.com/reubenjohn/naomi_api`
+- Python 3.10 or higher
+- Poetry (for dependency management)
+- Git
 
-## Help
+### Fork and clone the repository
 
-Run `make help` to see the available make targets.
+1. Fork the repository on GitHub
+2. Clone your fork:
+   ```bash
+   git clone git@github.com:YOUR_USERNAME/naomi_api.git
+   cd naomi_api
+   ```
+3. Add the upstream repository:
+   ```bash
+   git remote add upstream https://github.com/reubenjohn/naomi_api
+   ```
 
-## Show the current environment
+### Install dependencies
 
-Run `make show` to display the current environment information.
-
-## Install the project in develop mode
-
-Run `make install` to install the project using Poetry.
-
-## IDE reccomendations
-
-### VS Code
-
-#### Install VS Code Extensions
-
-To ensure that you have all the necessary tools for development, install the following VS Code extensions:
-
-- Python (ms-python.python)
-- Flake8 (ms-python.flake8)
-- MyPy (ms-python.mypy-type-checker)
-- Black Formatter (ms-python.black-formatter)
-
-You can install these extensions by searching for them in the Extensions view (`Ctrl+Shift+X`) in VS Code.
-
-#### ExampleVS Code Settings
-Create a `.vscode/settings.json` file in the root of your project with the following content (some of these settings can also be configured using the UI):
-
-```json
-{
-    "python.analysis.autoImportCompletions": true,
-    "python.testing.unittestArgs": [
-        "-v",
-        "-s",
-        "./tests",
-        "-p",
-        "test_*.py"
-    ],
-    "python.testing.pytestEnabled": true,
-    "python.testing.unittestEnabled": false,
-    "flake8.importStrategy": "fromEnvironment",
-    "mypy-type-checker.importStrategy": "fromEnvironment",
-    "black-formatter.importStrategy": "fromEnvironment"
-}
+```bash
+make install
 ```
 
-This configuration will set up VS Code to use the appropriate settings for linting, formatting, and testing.
-## Run the tests to ensure everything is working
+This will create a virtual environment using Poetry and install all development dependencies.
 
-If you are on a headless server, you need xvfb to run GUI tests:
-    # sudo apt install xvfb
-    make test # uses xvfb-run internally
+## Environment Variables
 
-If you are on a machine with a display, you can run:
-    make test-headed
+Set up the required environment variables:
 
-## Create a new branch to work on your contribution
+```
+SERVICE_ACCOUNT_KEY_PATH=path/to/firebase-service-account.json
+OPENAI_BASE_URL=https://api.openai.com/v1
+OPENAI_API_KEY=your_openai_api_key
+OPENAI_BASE_MODEL=gpt-4
+```
 
-Run `git checkout -b my_contribution`
+## Development workflow
 
-## Make your changes
+### Create a new branch
 
-Edit the files using your preferred editor. (we recommend VIM or VSCode)
+```bash
+git checkout -b feature/your-feature-name
+```
 
-## Format the code
+### Run the API server locally
 
-Run `make fmt` to format the code using Black and isort.
+```bash
+poetry run api_server
+# or with custom host/port
+poetry run api_server --host 127.0.0.1 --port 8000
+```
 
-## Run the linter
+### Code formatting and linting
 
-Run `make lint` to run flake8, Black (check mode), and mypy.
+```bash
+# Format code
+make fmt
 
-## Test your changes
+# Run linters
+make lint
+```
 
-Run `make test` to run the tests.
+The project uses:
+- Black for code formatting (line length: 100)
+- isort for import sorting
+- flake8 for linting
+- mypy for type checking
 
-Ensure code coverage report shows `100%` coverage, add tests to your PR.
+### Running tests
 
-## Watch tests
+```bash
+# Run all tests
+make test
 
-Run `make watch` to run tests on every change.
+# Run a specific test
+poetry run pytest tests/test_api.py::test_receive_webhook -v
 
-## Build the docs locally
+# Watch tests (rerun on file changes)
+make watch
+```
 
-Run `make docs` to build the documentation.
+### Building documentation
 
-Ensure your new changes are documented.
+```bash
+make docs
+```
 
-## Clean the project
+## Pull Request Process
 
-Run `make clean` to remove unused files and directories.
+1. Ensure your code passes all tests and linting
+2. Update documentation if necessary
+3. Make your commits with clear, descriptive messages following [conventional commits](https://www.conventionalcommits.org/)
+4. Push your changes to your fork
+5. Submit a pull request to the main repository
 
-## Commit your changes
+## Code Style Guidelines
 
-This project uses [conventional git commit messages](https://www.conventionalcommits.org/en/v1.0.0/).
+- Use type annotations for all function parameters and return values
+- Follow PEP 8 style guidelines (enforced by flake8)
+- Organize imports into three groups: standard library, third-party, local
+- Write docstrings for all public functions, classes, and methods
+- Include meaningful test cases for new functionality
 
-Example: `fix(package): update setup.py arguments 🎉` (emojis are fine too)
+## Creating a new release
 
-## Push your changes to your fork
+This project uses semantic versioning (MAJOR.MINOR.PATCH).
 
-Run `git push origin my_contribution`
+To create a new release:
 
-## Submit a pull request
+1. Ensure all tests pass
+2. Run `make release`
+3. Enter the new version number when prompted
 
-On github interface, click on `Pull Request` button.
-
-Wait CI to run and one of the developers will review your PR.
 ## Makefile utilities
 
-This project comes with a `Makefile` that contains a number of useful utility.
-
-```bash 
-❯ make
-Usage: make <target>
-
-Targets:
-help:             ## Show the help.
-install:          ## Install the project in dev mode.
-fmt:              ## Format code using black & isort.
-lint:             ## Run pep8, black, mypy linters.
-test: lint        ## Run tests and generate coverage report.
-watch:            ## Run tests on every change.
-clean:            ## Clean unused files.
-release:          ## Create a new tag for release.
-docs:             ## Build the documentation.
-show:             ## Display the current environment information.
-test-headed:      ## Run tests in headed mode.
+```bash
+make help             # Show available commands
+make install          # Install the project in dev mode
+make fmt              # Format code using black & isort
+make lint             # Run pep8, black, mypy linters
+make test             # Run tests and generate coverage report
+make watch            # Run tests on every change
+make clean            # Clean unused files
+make release          # Create a new tag for release
+make docs             # Build the documentation
 ```
-
-## Making a new release
-
-This project uses [semantic versioning](https://semver.org/) and tags releases with `X.Y.Z`
-Every time a new tag is created and pushed to the remote repo, github actions will
-automatically create a new release on github and trigger a release on PyPI.
-
-For this to work you need to setup a secret called `PIPY_API_TOKEN` on the project settings>secrets, 
-this token can be generated on [pypi.org](https://pypi.org/account/).
-
-To trigger a new release all you need to do is.
-
-1. If you have changes to add to the repo
-    * Make your changes following the steps described above.
-    * Commit your changes following the [conventional git commit messages](https://www.conventionalcommits.org/en/v1.0.0/).
-2. Run the tests to ensure everything is working.
-4. Run `make release` to create a new tag and push it to the remote repo.
-
-the `make release` will ask you the version number to create the tag, ex: type `0.1.1` when you are asked.
-
-> **CAUTION**:  The make release will change local changelog files and commit all the unstaged changes you have.

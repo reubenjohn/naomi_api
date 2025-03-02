@@ -1,96 +1,95 @@
-# naomi_api
+# NAOMI API
 
 [![codecov](https://codecov.io/gh/reubenjohn/naomi_api/branch/main/graph/badge.svg?token=naomi_api_token_here)](https://codecov.io/gh/reubenjohn/naomi_api/branch/main)
 [![CI](https://github.com/reubenjohn/naomi_api/actions/workflows/main.yml/badge.svg)](https://github.com/reubenjohn/naomi_api/actions/workflows/main.yml)
 
-A template project to help you get started with a new Python project. This template is designed to be modular, simple, and easy to maintain, with a focus on flexibility and low dependency.
+A FastAPI service for handling webhooks and push notifications integrated with the NAOMI core library.
 
-## Introduction
+## Overview
 
-**naomi_api** is a project template for creating new Python projects. It provides a well-structured project layout, essential configurations, and utilities to streamline the development process. Whether you're building a library, application, or framework, this template offers a solid foundation to start from.
+NAOMI API provides:
 
-### **Key Features**
-1. **Modular Structure**: A clean and modular project structure that is easy to navigate and extend.
-2. **Low Dependency**: Minimal dependencies to keep the project lightweight and easy to manage.
-3. **Flexibility**: Easily customizable to fit various project requirements.
-4. **Development Utilities**: Includes a Makefile with common development tasks and a pyproject.toml for managing dependencies with Poetry.
+* Webhook event processing and storage
+* Firebase Cloud Messaging (FCM) integration for push notifications 
+* RESTful API endpoints built with FastAPI
+* Integration with the NAOMI core library
 
-## Project Structure
-
-```text
-├── Containerfile            # The file to build a container using buildah or docker
-├── CONTRIBUTING.md          # Onboarding instructions for new contributors
-├── docs                     # Documentation site (add more .md files here)
-│   └── index.md             # The index page for the docs site
-├── .github                  # Github metadata for repository
-│   ├── release_message.sh   # A script to generate a release message
-│   └── workflows            # The CI pipeline for Github Actions
-├── .gitignore               # A list of files to ignore when pushing to Github
-├── HISTORY.md               # Auto generated list of changes to the project
-├── LICENSE                  # The license for the project
-├── Makefile                 # A collection of utilities to manage the project
-├── MANIFEST.in              # A list of files to include in a package
-├── mkdocs.yml               # Configuration for documentation site
-├── naomi_api          # The main python package for the project
-│   ├── base.py              # The base module for the project
-│   ├── __init__.py          # This tells Python that this is a package
-│   ├── __main__.py          # The entry point for the project
-│   └── VERSION              # The version for the project is kept in a static file
-├── README.md                # The main readme for the project
-├── setup.py                 # The setup.py file for installing and packaging the project
-├── requirements.txt         # An empty file to hold the requirements for the project
-├── requirements-test.txt    # List of requirements for testing and development
-└── tests                    # Unit tests for the project (add more test files here)
-    ├── conftest.py          # Configuration, hooks and fixtures for pytest
-    ├── __init__.py          # This tells Python that this is a test package
-    └── test_base.py         # The base test case for the project
-```
-
-## Setup
-
-To set up the project for development, run:
-
-    ```bash
-    make install
-    ```
-
-For detailed development setup, please see [CONTRIBUTING.md](CONTRIBUTING.md).
-
-## Usage
-
-To run the main entry point of the project:
+## Installation
 
 ```bash
-$ poetry run naomi_api
+# Clone the repository
+git clone https://github.com/reubenjohn/naomi_api.git
+cd naomi_api
+
+# Install dependencies
+make install
 ```
-(See CONTRIBUTING.md for more usage details.)
+
+## Configuration
+
+The service requires the following environment variables:
+
+```
+SERVICE_ACCOUNT_KEY_PATH=path/to/firebase-service-account.json
+OPENAI_BASE_URL=https://api.openai.com/v1  # For NAOMI core
+OPENAI_API_KEY=your_openai_api_key         # For NAOMI core
+OPENAI_BASE_MODEL=gpt-4                    # For NAOMI core
+```
+
+## Running the Service
+
+```bash
+# Start the API server (default: 0.0.0.0:8090)
+poetry run api_server
+
+# With custom host/port
+poetry run api_server --host 127.0.0.1 --port 8000
+```
+
+## API Endpoints
+
+* `POST /webhook` - Receive webhook events
+* `POST /subscribe` - Subscribe a device to notifications (FCM)
+* `POST /send_notification` - Send notifications to subscribed devices
 
 ## Development
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for all development guidelines (setup, contributions, etc).
-
-## Makefile
-
-The Makefile includes several useful targets for managing the project:
-
 ```bash
-❯ make
-Usage: make <target>
+# Format code
+make fmt
 
-Targets:
-help:             ## Show the help.
-install:          ## Install the project in dev mode.
-fmt:              ## Format code using black & isort.
-lint:             ## Run pep8, black, mypy linters.
-test: lint        ## Run tests and generate coverage report.
-watch:            ## Run tests on every change.
-clean:            ## Clean unused files.
-virtualenv:       ## Create a virtual environment.
-release:          ## Create a new tag for release.
-docs:             ## Build the documentation.
+# Lint code
+make lint
+
+# Run tests
+make test
+
+# Run specific test
+poetry run pytest tests/test_api.py::test_receive_webhook -v
+
+# Watch tests (rerun on file changes)
+make watch
 ```
-(Refer to CONTRIBUTING.md for extended usage.)
 
-## Acknowledgements
+## Project Structure
 
-This template is inspired by best practices and experiences from maintaining various Python projects.
+```
+naomi_api/
+├── api.py         # FastAPI app and endpoints
+├── __init__.py    # Package initialization
+├── __main__.py    # CLI entry point
+└── sanity.py      # Health check utilities
+
+tests/
+├── conftest.py    # Test fixtures and configuration
+├── data.py        # Test data objects
+└── test_api.py    # API endpoint tests
+```
+
+## Dependencies
+
+* FastAPI - Web framework
+* Uvicorn - ASGI server
+* Firebase Admin - Push notifications
+* NAOMI Core - Core functionality (imported from GitHub)
+* SQLAlchemy - Database ORM
