@@ -27,13 +27,53 @@ make install
 
 ## Configuration
 
-The service requires the following environment variables:
+Copy `.env.example` to `.env` and fill in your environment variables:
+
+```bash
+cp .env.example .env
+# Edit .env with your configuration values
+```
+
+Required environment variables include:
+
+### Firebase Configuration
 
 ```
-SERVICE_ACCOUNT_KEY_PATH=path/to/firebase-service-account.json
-OPENAI_BASE_URL=https://api.openai.com/v1  # For NAOMI core
-OPENAI_API_KEY=your_openai_api_key         # For NAOMI core
-OPENAI_BASE_MODEL=gpt-4                    # For NAOMI core
+# Firebase Web Configuration
+FIREBASE_API_KEY=your_api_key
+FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
+FIREBASE_PROJECT_ID=your_project_id
+FIREBASE_STORAGE_BUCKET=your_project_id.firebasestorage.app
+FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+FIREBASE_APP_ID=your_app_id
+FIREBASE_MEASUREMENT_ID=your_measurement_id
+FIREBASE_VAPID_KEY=your_vapid_key
+
+# Firebase Admin SDK Configuration
+FIREBASE_ADMIN_TYPE=service_account
+FIREBASE_ADMIN_PRIVATE_KEY_ID=your_private_key_id
+FIREBASE_ADMIN_PRIVATE_KEY=your_private_key  # Include newlines with \n
+FIREBASE_ADMIN_CLIENT_EMAIL=your_client_email
+FIREBASE_ADMIN_CLIENT_ID=your_client_id
+FIREBASE_ADMIN_AUTH_URI=https://accounts.google.com/o/oauth2/auth
+FIREBASE_ADMIN_TOKEN_URI=https://oauth2.googleapis.com/token
+FIREBASE_ADMIN_AUTH_PROVIDER_CERT_URL=https://www.googleapis.com/oauth2/v1/certs
+FIREBASE_ADMIN_CLIENT_CERT_URL=your_client_cert_url
+FIREBASE_ADMIN_UNIVERSE_DOMAIN=googleapis.com
+```
+
+### NAOMI Core Configuration
+
+```
+OPENAI_BASE_URL=https://api.openai.com/v1
+OPENAI_API_KEY=your_openai_api_key
+OPENAI_BASE_MODEL=gpt-4
+```
+
+### Frontend Integration
+
+```
+STREAMLIT_URL=http://localhost:8501  # URL of your Streamlit frontend
 ```
 
 ## Running the Service
