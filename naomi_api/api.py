@@ -1,17 +1,17 @@
-from contextlib import asynccontextmanager
 import os
+from contextlib import asynccontextmanager
+from typing import Any, Dict
+
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from typing import Dict, Any
-from dotenv import load_dotenv
-
+from firebase_admin import credentials, initialize_app  # type: ignore[import]
 from naomi_core.db import WebhookEvent, initialize_db, session_scope
-from firebase_admin import initialize_app, credentials, messaging  # type: ignore[import]
+from pydantic import BaseModel
+
+from naomi_api.notifications import router as notifications_router
 
 cred = None
-
-subscribers = []  # Stores FCM tokens
 
 
 @asynccontextmanager
@@ -64,31 +64,17 @@ async def receive_webhook(event: WebhookEventRequest):
     return {"status": "OK"}
 
 
-@app.post("/subscribe")
-async def subscribe(data: dict):
-    token = data.get("token")
-    if token not in subscribers:
-        subscribers.append(token)
-    return {"message": "Subscribed", "token": token}
-
-
-@app.post("/send_notification")
-async def send_notification():
-    message = messaging.MulticastMessage(
-        data={"score": "850", "time": "2:45"},
-        tokens=subscribers,
-    )
-    response = messaging.send_multicast(message)
-
-    return {"response": "{0} messages were sent successfully".format(response.success_count)}
+# Include the notifications router
+app.include_router(notifications_router, prefix="/notifications")
 
 
 def main():
     # Load environment variables before app initialization
     load_dotenv()
 
-    import uvicorn
     import argparse
+
+    import uvicorn
 
     parser = argparse.ArgumentParser(description="Run the FastAPI server.")
     parser.add_argument("--host", type=str, default="0.0.0.0", help="Host to run the server on")
