@@ -121,30 +121,32 @@
                     console.log('Notification permission granted.');
 
                     // Get registration token
-                    messaging.getToken({ vapidKey: "PLACEHOLDER_VAPID_KEY" })
-                        .then((currentToken) => {
-                            console.log("Token received:", currentToken);
-                            if (currentToken) {
-                                console.log("Sending token to server for subscription...");
-                                fetch("/subscribe", {
-                                    method: "POST",
-                                    headers: {
-                                        "Content-Type": "application/json"
-                                    },
-                                    body: JSON.stringify({ token: currentToken })
-                                }).then(response => response.json()).then(data => {
-                                    setStatus("✓ Notifications enabled!");
-                                }).catch(err => {
-                                    console.error("Error subscribing:", err);
-                                    setStatus("Error subscribing to notifications", true);
+                    navigator.serviceWorker.register('firebase-messaging-sw.js')
+                        .then((registration) => {
+                            messaging.getToken({ vapidKey: "PLACEHOLDER_FIREBASE_VAPID_KEY" })
+                                .then((currentToken) => {
+                                    console.log("Token received:", currentToken);
+                                    if (currentToken) {
+                                        console.log("Sending token to server for subscription...");
+                                        fetch("/notifications", {
+                                            method: "POST",
+                                            headers: {
+                                                "Content-Type": "application/json"
+                                            },
+                                            body: JSON.stringify({ token: currentToken })
+                                        }).then(response => response.json()).then(data => {
+                                            setStatus("✓ Notifications enabled!");
+                                        }).catch(err => {
+                                            console.error("Error subscribing:", err);
+                                            setStatus("Error subscribing to notifications", true);
+                                        });
+                                    } else {
+                                        setStatus("No registration token available", true);
+                                    }
+                                }).catch((err) => {
+                                    console.error('Error getting token:', err);
+                                    setStatus("Error getting registration token", true);
                                 });
-                                navigator.serviceWorker.register('firebase-messaging-sw.js');
-                            } else {
-                                setStatus("No registration token available", true);
-                            }
-                        }).catch((err) => {
-                            console.error('Error getting token:', err);
-                            setStatus("Error getting registration token", true);
                         });
                 } else {
                     setStatus("Notification permission denied", true);
@@ -167,7 +169,7 @@
                         try {
                             registration.showNotification(payload.notification.title, {
                                 body: payload.notification.body,
-                                icon: '/static/img/firebase-logo.svg',
+                                // icon: '/static/img/firebase-logo.svg',
                                 data: {
                                     url: (payload.data && payload.data.click_action) ||
                                         (payload.data && payload.data.url) ||
@@ -207,7 +209,7 @@
         function sendTestNotification() {
             setStatus("Sending notification...");
 
-            fetch("/send_notification", {
+            fetch("/notifications/send", {
                 method: "POST"
             })
                 .then(response => response.json())

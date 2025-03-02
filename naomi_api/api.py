@@ -1,3 +1,5 @@
+import logging
+
 import os
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -15,6 +17,11 @@ from naomi_api.inject_secrets import PlaceholderInjector
 from naomi_api.notifications import router as notifications_router
 
 cred = None
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 
 
 @asynccontextmanager
@@ -39,6 +46,7 @@ async def lifespan(app: FastAPI):
 
     cred = credentials.Certificate(cred_dict)
     initialize_app(cred)
+    logging.info("Firebase Admin SDK initialized")
     yield
 
 
@@ -101,9 +109,12 @@ def main():
     parser = argparse.ArgumentParser(description="Run the FastAPI server.")
     parser.add_argument("--host", type=str, default="0.0.0.0", help="Host to run the server on")
     parser.add_argument("--port", type=int, default=8090, help="Port to run the server on")
+    parser.add_argument(
+        "--reload", action="store_true", help="Enable auto-reload of the server on file changes"
+    )
     args = parser.parse_args()
 
-    uvicorn.run("naomi_api.api:app", host=args.host, port=args.port)
+    uvicorn.run("naomi_api.api:app", host=args.host, port=args.port, reload=args.reload)
 
 
 if __name__ == "__main__":

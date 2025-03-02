@@ -22,7 +22,7 @@ messaging.onBackgroundMessage((payload) => {
     const notificationTitle = `${payload.notification.title} [Background]`;
     const notificationOptions = {
         body: payload.notification.body,
-        icon: '/static/img/firebase-logo.svg',
+        // icon: '/static/img/firebase-logo.svg',
         // Add data with URL to open when clicked
         data: {
             url: payload.data?.click_action || payload.data?.url || 'http://localhost:8090'

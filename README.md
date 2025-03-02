@@ -89,8 +89,8 @@ poetry run api_server --host 127.0.0.1 --port 8000
 ## API Endpoints
 
 * `POST /webhook` - Receive webhook events
-* `POST /subscribe` - Subscribe a device to notifications (FCM)
-* `POST /send_notification` - Send notifications to subscribed devices
+* `POST /notifications/subscribe` - Subscribe a device to notifications (FCM)
+* `POST /notifications/send` - Send notifications to subscribed devices
 
 ## Development
 
