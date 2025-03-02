@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 import os
-from fastapi import FastAPI, HTTPException, requests
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Dict, Any
@@ -9,16 +9,33 @@ from dotenv import load_dotenv
 from naomi_core.db import WebhookEvent, initialize_db, session_scope
 from firebase_admin import initialize_app, credentials, messaging  # type: ignore[import]
 
-cred = credentials.Certificate(os.environ["SERVICE_ACCOUNT_KEY_PATH"])
-initialize_app(cred)
+cred = None
 
-FIREBASE_SERVER_KEY = "YOUR_FIREBASE_SERVER_KEY"
 subscribers = []  # Stores FCM tokens
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    global cred
     initialize_db()
+
+    # Create credentials dict from environment variables
+    cred_dict = {
+        "type": os.environ.get("FIREBASE_ADMIN_TYPE"),
+        "project_id": os.environ.get("FIREBASE_PROJECT_ID"),
+        "private_key_id": os.environ.get("FIREBASE_ADMIN_PRIVATE_KEY_ID"),
+        "private_key": os.environ.get("FIREBASE_ADMIN_PRIVATE_KEY"),
+        "client_email": os.environ.get("FIREBASE_ADMIN_CLIENT_EMAIL"),
+        "client_id": os.environ.get("FIREBASE_ADMIN_CLIENT_ID"),
+        "auth_uri": os.environ.get("FIREBASE_ADMIN_AUTH_URI"),
+        "token_uri": os.environ.get("FIREBASE_ADMIN_TOKEN_URI"),
+        "auth_provider_x509_cert_url": os.environ.get("FIREBASE_ADMIN_AUTH_PROVIDER_CERT_URL"),
+        "client_x509_cert_url": os.environ.get("FIREBASE_ADMIN_CLIENT_CERT_URL"),
+        "universe_domain": os.environ.get("FIREBASE_ADMIN_UNIVERSE_DOMAIN"),
+    }
+
+    cred = credentials.Certificate(cred_dict)
+    initialize_app(cred)
     yield
 
 
@@ -27,7 +44,7 @@ app = FastAPI(lifespan=lifespan)
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5000"],
+    allow_origins=[os.environ.get("STREAMLIT_URL", "http://localhost:8501")],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -67,6 +84,7 @@ async def send_notification():
 
 
 def main():
+    # Load environment variables before app initialization
     load_dotenv()
 
     import uvicorn
