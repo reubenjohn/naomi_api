@@ -46,7 +46,7 @@ def send_single_message(token: str, base_url: str) -> bool:
         return True
 
     except Exception as token_error:
-        logging.error(f"Error sending to token: {token_error}")
+        logging.error(f"Error sending to token: {token_error}", exc_info=True)
         return False
 
 
@@ -74,13 +74,13 @@ def send_to_subscribers(subscribers: set[str], base_url: str) -> dict:
         # Return results summary
         return {
             "message": f"Sent {counters[True]} notifications successfully,"
-            " {counters[False]} failed",
+            f" {counters[False]} failed",
             "success_count": counters[True],
             "failure_count": counters[False],
         }
 
     except Exception as e:
-        logging.error(f"Error sending notification: {e}")
+        logging.error(f"Error sending notification: {e}", exc_info=True)
         return {"message": str(e), "success_count": 0, "failure_count": len(subscribers)}
 
 

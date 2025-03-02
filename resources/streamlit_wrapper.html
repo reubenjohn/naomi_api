@@ -21,7 +21,10 @@
         }
 
         .header {
-            background-color: #f5f5f5;
+            position: absolute;
+            top: 0;
+            right: 250px;
+            background-color: #f5f5f5a5;
             padding: 10px 20px;
             border-bottom: 1px solid #ddd;
             display: flex;
@@ -59,7 +62,7 @@
 
         .streamlit-container {
             position: absolute;
-            top: 50px;
+            top: 0px;
             left: 0;
             right: 0;
             bottom: 0;
@@ -75,17 +78,17 @@
 </head>
 
 <body>
+    <div class="streamlit-container">
+        <iframe src="PLACEHOLDER_STREAMLIT_URL"></iframe>
+    </div>
+
     <div class="header">
-        <h3>Firebase Notifications Demo</h3>
         <div class="notification-controls">
+            <p>Enabling notifications...</p>
             <button class="enable" onclick="requestPermission()">Enable Notifications</button>
             <button class="send" onclick="sendTestNotification()">Send Test Notification</button>
             <span id="status-message"></span>
         </div>
-    </div>
-
-    <div class="streamlit-container">
-        <iframe src="PLACEHOLDER_STREAMLIT_URL"></iframe>
     </div>
 
     <script>
@@ -119,6 +122,9 @@
             Notification.requestPermission().then((permission) => {
                 if (permission === 'granted') {
                     console.log('Notification permission granted.');
+
+                    // Hide notification controls
+                    document.querySelector('.header').style.display = 'none';
 
                     // Get registration token
                     navigator.serviceWorker.register('firebase-messaging-sw.js')

@@ -20,12 +20,15 @@ cred = None
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    load_dotenv(override=True)
+    logging.info("Environment variables loaded")
+
     global cred
     initialize_db()
 
@@ -99,12 +102,8 @@ async def serve_firebase_messaging_sw():
 
 
 def main():
-    # Load environment variables before app initialization
-    load_dotenv()
-
+    load_dotenv(override=True)
     import argparse
-
-    import uvicorn
 
     parser = argparse.ArgumentParser(description="Run the FastAPI server.")
     parser.add_argument("--host", type=str, default="0.0.0.0", help="Host to run the server on")
@@ -113,6 +112,8 @@ def main():
         "--reload", action="store_true", help="Enable auto-reload of the server on file changes"
     )
     args = parser.parse_args()
+
+    import uvicorn
 
     uvicorn.run("naomi_api.api:app", host=args.host, port=args.port, reload=args.reload)
 
