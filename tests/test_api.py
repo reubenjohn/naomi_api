@@ -13,10 +13,14 @@ def webhook_event_data():
     return {"type": "test_event", "payload": {"key": "value"}}
 
 
-def test_initialize_db_called():
+@patch("naomi_api.api.initialize_app")
+@patch("naomi_api.api.credentials.Certificate")
+def test_initialize_db_called(mock_certificate, mock_initialize_app):
     with patch("naomi_api.api.initialize_db") as mock_initialize_db:
         with TestClient(app):
             mock_initialize_db.assert_called_once()
+            mock_certificate.assert_called_once()
+            mock_initialize_app.assert_called_once()
     mock_initialize_db.assert_called_once()
 
 
