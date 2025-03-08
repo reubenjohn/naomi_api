@@ -5,6 +5,7 @@ description = ""
 authors = ["rochacbruno"]
 readme = "README.md"
 packages = [{include = "naomi_api"}]
+include = ["naomi_api/py.typed"]
 
 [tool.poetry.dependencies]
 python = "^3.10"

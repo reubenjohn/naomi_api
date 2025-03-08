@@ -7,12 +7,23 @@ A FastAPI service for handling webhooks and push notifications integrated with t
 
 ## Overview
 
-NAOMI API provides:
+NAOMI API is a FastAPI-based backend service that enables push notifications and webhook integrations for NAOMI. It acts as a bridge between NAOMI's internal processes and external systems, allowing for real-time communication and automation.
 
-* Webhook event processing and storage
-* Firebase Cloud Messaging (FCM) integration for push notifications 
-* RESTful API endpoints built with FastAPI
-* Integration with the NAOMI core library
+## Features
+
+### Implemented
+
+* Push Notification Handling: Manages outbound notifications to users via Firebase Cloud Messaging.
+* Webhook Integration: Receives and stores webhook events (workflow triggering pending).
+* Static File Serving: Serves static files with environment variable injection.
+* Database Connectivity: Interfaces with SQLite database for data persistence.
+* Secure API Endpoints: Provides authenticated access for interacting with NAOMI.
+
+### Planned
+
+* Webhook Processing: Trigger NAOMI workflows based on received webhook events.
+* Event Processing: Listeners for processing events that impact NAOMI's behavior.
+* Advanced Authentication: Enhanced security for API access.
 
 ## Installation
 
@@ -88,9 +99,12 @@ poetry run api_server --host 127.0.0.1 --port 8000
 
 ## API Endpoints
 
-* `POST /webhook` - Receive webhook events
+### Implemented
+
 * `POST /notifications/subscribe` - Subscribe a device to notifications (FCM)
 * `POST /notifications/send` - Send notifications to subscribed devices
+* `GET /static/{filename}` - Serve static files with environment variable injection
+* `POST /webhook` - Receive and store webhook events (without workflow triggering)
 
 ## Development
 
@@ -115,15 +129,16 @@ make watch
 
 ```
 naomi_api/
-├── api.py         # FastAPI app and endpoints
-├── __init__.py    # Package initialization
-├── __main__.py    # CLI entry point
-└── sanity.py      # Health check utilities
+├── api.py                # FastAPI app and endpoints
+├── __init__.py           # Package initialization
+├── inject_secrets.py     # Environment variable injection for static files
+└── notifications.py      # Push notification handling
 
 tests/
-├── conftest.py    # Test fixtures and configuration
-├── data.py        # Test data objects
-└── test_api.py    # API endpoint tests
+├── conftest.py          # Test fixtures and configuration
+├── data.py              # Test data objects
+├── test_api.py          # API endpoint tests
+└── test_inject_secrets.py # Static file injection tests
 ```
 
 ## Dependencies
