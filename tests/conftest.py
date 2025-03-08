@@ -1,16 +1,15 @@
-from contextlib import contextmanager
 import os
+
+from contextlib import contextmanager
 from unittest.mock import patch
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from naomi_core.db import (
-    Base,
-    Message,
-    MessageModel,
-)
+from naomi_core.db.core import Base
+from naomi_core.db.chat import Message, MessageModel
 from tests.data import message_data_1, message_data_2, message_model_1, message_model_2
 
+os.environ["DB_PATH"] = "sqlite:///:memory:"
 os.environ["OPENAI_BASE_URL"] = ""
 os.environ["OPENAI_API_KEY"] = ""
 os.environ["OPENAI_BASE_MODEL"] = ""

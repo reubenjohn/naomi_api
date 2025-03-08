@@ -10,7 +10,8 @@ from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from firebase_admin import credentials, initialize_app  # type: ignore[import]
-from naomi_core.db import WebhookEvent, initialize_db, session_scope
+from naomi_core.db.core import initialize_db, session_scope
+from naomi_core.db.webhook import WebhookEvent
 from pydantic import BaseModel
 
 from naomi_api.inject_secrets import PlaceholderInjector
